@@ -1,0 +1,1 @@
+Since the dataset is already preprocessed, I'm directly supplying vocabulary=vocabulary to CountVectorizer without calling fit(), to avoid any unintended token filtering (e.g., removing tokens like 'hi') that may occur with the default tokenizer during fitting.
