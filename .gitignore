@@ -1,6 +1,21 @@
 # Mac OS
 .DS_Store
 
+# Latex Compiled files
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.run.xml
+*.fdb_latexmk
+*.synctex
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

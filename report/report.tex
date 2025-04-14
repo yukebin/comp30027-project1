@@ -1,1 +1,134 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem} 
+\usepackage{booktabs}
+\usepackage{xcolor}
+
+
+\geometry{margin=1in}
+
+\title{Project 1: Scam detection with Naive Bayes}
+\author{Kevin Yu \\ Student ID: 1462539 \\ The University of Melbourne}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\newpage
+
+% Sections
+\section{Supervised model training}
+
+The prior probability of \textbf{non-malicious class was $0.7995$} (rounded to $4$ d.p.), while the \textbf{scam class was $0.2005$}. This indicates that the dataset is imbalanced, with a higher proportion of non-malicious instances. The distribution aligns well with real-world data, where non-malicious messages significantly outnumber spam. \\
+
+Table \ref{tab:probable_words} shows the top 10 most ``probable'' words for each class, based on the conditional probability $P(w \mid c)$. In contract, Table \ref{tab:predictive_words} shows the top 10 most ``predictive'' words for each class, calculated by the ratio, $P(w \mid c) / P(w \mid \neg c)$. Notably, the words in each table differ; although both measure the association of words with a particular class, they serve a slightly different purpose. 
+
+For example, most probable words include words such as `call' ($p = 0.0274$), `customer' ($p = 0.0092$) and `reply' ($p = 0.0080$). These words appear frequently in scam messages, which makes them probable; however, intuitively, we expect legitimate messages to frequently contain such words, especially those from customer service. In contrast, the most predictive words include terms such as `prize' ($p = 88.80$) and `claim' ($p = 41.21$). These words can appear in legitimate context, however, they are far more likely to be used in scam messages. (How often do you randomly win a prize?) 
+
+For non-malicious messages, the most predictive words include slang such as `lor' ($p = 32.16$), `wat' ($p = 19.53$) and `lol' ($p = 17.80$). These casual words are more likely to be used in non-malicious messages, and are not commonly found in scam messages. This serves as a good example of how the model can learn to distinguish between the two classes based on word usage.
+
+Overall, the result is reasonable and it seems feasible to distinguish between scam and non-malicious messages using a multinomial naïve Bayes model. The differences in both frequent and predictive vocabulary across classes suggest the model can effectively learn class-specific language patterns, despite the simplicity of its assumptions.
+
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|l|c||l|c|}
+    \hline
+    \multicolumn{2}{|c||}{\textbf{Scam Class}} & \multicolumn{2}{c|}{\textbf{Non-malicious Class}} \\
+    \hline
+    \textbf{Word} & \textbf{Probability} & \textbf{Word} & \textbf{Probability} \\
+    \hline
+    call      & 0.0274 & go     & 0.0161 \\
+    free      & 0.0137 & get    & 0.0143 \\
+    claim     & 0.0100 & gt     & 0.0085 \\
+    customer  & 0.0092 & lt     & 0.0084 \\
+    txt       & 0.0090 & call   & 0.0083 \\
+    ur        & 0.0085 & ok     & 0.0078 \\
+    text      & 0.0082 & come   & 0.0075 \\
+    stop      & 0.0082 & ur     & 0.0075 \\
+    reply     & 0.0080 & know   & 0.0075 \\
+    mobile    & 0.0078 & good   & 0.0071 \\
+    \hline
+    \end{tabular}
+    \caption{Top 10 most probable words for each class}
+    \label{tab:probable_words}
+\end{table}
+    
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|l|c||l|c|}
+    \hline
+    \multicolumn{2}{|c||}{\textbf{Scam Class}} & \multicolumn{2}{c|}{\textbf{Non-malicious Class}} \\
+    \hline
+    \textbf{Word} & \textbf{$P(w \mid \text{scam}) / P(w \mid \text{ham})$} & \textbf{Word} & \textbf{$P(w \mid \text{ham}) / P(w \mid \text{scam})$} \\
+    \hline
+    prize   & 88.80 & gt    & 60.30 \\
+    tone    & 57.46 & lt    & 59.73 \\
+    select  & 41.79 & lor   & 32.16 \\
+    claim   & 41.21 & hope  & 27.57 \\
+    50      & 34.82 & ok    & 27.57 \\
+    paytm   & 33.08 & da    & 22.40 \\
+    code    & 31.34 & let   & 20.10 \\
+    award   & 28.73 & wat   & 19.53 \\
+    won     & 27.86 & oh    & 18.38 \\
+    18      & 26.12 & lol   & 17.80 \\
+    \hline
+    \end{tabular}
+    \caption{Top 10 most predictive words for each classe based on likelihood ratios}
+    \label{tab:predictive_words}
+\end{table}
+
+\section{Methodology}
+Describe the methods and techniques used in your work. Include equations, algorithms, or diagrams if necessary.
+
+\subsection{Data Preprocessing}
+Explain how the data was prepared for analysis, including any cleaning, transformation, or feature extraction steps.
+
+\subsection{Model Description}
+Provide details about the model or approach used, such as Naive Bayes, decision trees, etc.
+
+\section{Results}
+Present the results of your analysis or experiments. Use tables, figures, and graphs to support your findings.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lcc}
+        \toprule
+        Metric & Value 1 & Value 2 \\
+        \midrule
+        Accuracy & 0.95 & 0.90 \\
+        Precision & 0.92 & 0.88 \\
+        Recall & 0.93 & 0.89 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Example table caption.}
+    \label{tab:example}
+\end{table}
+
+\section{Discussion}
+Interpret the results and discuss their implications. Highlight any limitations or challenges encountered.
+
+\section{Conclusion}
+Summarize the key findings and contributions of the report. Suggest future work or improvements.
+
+\section*{References}
+\begin{enumerate}
+    \item Author Name, \textit{Title of the Paper/Book}, Publisher, Year.
+    \item Author Name, "Title of the Article," \textit{Journal Name}, vol. X, no. Y, pp. Z, Year.
+\end{enumerate}
+
+
 Since the dataset is already preprocessed, I'm directly supplying vocabulary=vocabulary to CountVectorizer without calling fit(), to avoid any unintended token filtering (e.g., removing tokens like 'hi') that may occur with the default tokenizer during fitting.
+
+\end{document}
+
