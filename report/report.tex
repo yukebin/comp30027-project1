@@ -12,11 +12,15 @@
 \usepackage{enumitem} 
 \usepackage{booktabs}
 \usepackage{xcolor}
-
+\usepackage{svg}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage[table]{xcolor}
+\renewcommand{\arraystretch}{1.25} % row spacing
 
 \geometry{margin=1in}
 
-\title{Project 1: Scam detection with Naive Bayes}
+\title{Project 1: Scam detection with naïve Bayes}
 \author{Kevin Yu \\ Student ID: 1462539 \\ The University of Melbourne}
 \date{\today}
 
@@ -88,14 +92,96 @@ Overall, the result is reasonable and it seems feasible to distinguish between s
     \label{tab:predictive_words}
 \end{table}
 
-\section{Methodology}
-Describe the methods and techniques used in your work. Include equations, algorithms, or diagrams if necessary.
+\section{Supervised model evaluation}
 
-\subsection{Data Preprocessing}
-Explain how the data was prepared for analysis, including any cleaning, transformation, or feature extraction steps.
+The classifier achieved an \textbf{accuracy of $0.9700$}, with \textbf{precision = $0.9381$}, \textbf{recall = $0.9100$} and an \textbf{F1 score of $0.9239$} (scam as positive class). The model's performance is quite good, indicating that it is effective in distinguishing between scam and non-malicious messages.
 
-\subsection{Model Description}
-Provide details about the model or approach used, such as Naive Bayes, decision trees, etc.
+The confusion matrix in Figure \ref{fig:base} highlights a high count of true positives and true negatives, supporting the model's effectiveness.
+
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.5\textwidth]{images/base.svg}
+    \caption{Confusion Matrix for Supervised Model.}
+    \label{fig:base}
+\end{figure}
+
+Our model encountered \textbf{$179$ out-of-vocabulary words}, accounting for only $1.6320\%$ of the total. These are likely rare or gibberish words, suggesting the vocabulary covers the dataset well. \\
+
+Table \ref{tab:scam_predictions} displays examples of high-confidence scam predictions with a measure of confidence, which is computed as the ratio of the posterior probabilities for each class. It often reference fake rewards from telecom companies and include words like `call', `award' and `claim'—strong indicators per Table \ref{tab:predictive_words}. Due to the naive Bayes' multiplicative nature, confidence ratios can be very large, reaching up to $10^{17}$.
+
+Likewise, for high confidence non-malicious predictions, the messages are often casual, with words like `ok', `good' and `wat'. It also includes systemetic transaction messages. While the use of formal language might intuitively align with the scam class, it is important to note that legitimate transactions are typically redacted. For example, the first text in High Confidence Non-Malicious Predictions has reference number, money and time redacted—unlike the scam messages. Additionally, such transations' raw text uses HTML entity encoding such as \texttt{\&lt;}(\textless) and \texttt{\&gt;}(\textgreater) to to enclose redacted content. As shown in Table \ref{tab:predictive_words}, these tokens are highly predictive of the non-malicious class.
+
+For boundary cases, it often contain neutral vocabulary that does not strongly indicate either class, or mix of words from both classes. \\
+
+Overall, the model's predictions are reasonable and align with the expected patterns of scam and non-malicious messages. 
+
+\begin{table}[h!]
+\centering
+\makebox[\linewidth]{
+\begin{tabularx}{1.1\textwidth}{|X|c|}
+\hline
+\multicolumn{2}{|c|}{\textbf{High Confidence Scam Predictions}} \\
+\hline
+\textbf{Text} & \textbf{Confidence Ratio} \\
+\hline
+Todays Vodafone numbers ending 5347 are selected to receive a Rs.2,00,000 award. If you have a match please call 6299257179 quoting claim code 2041 standard rates apply & $1.87 \times 10^{17}$ \\
+\rowcolor{gray!10}
+Todays Vodafone numbers ending 3156 are selected to receive a Rs.2,00,000 award. If you have a match please call 7908807538 quoting claim code 9823 standard rates apply & $1.40 \times 10^{17}$ \\
+Todays Voda numbers ending 5226 are selected to receive a ?350 award. If you have a match please call 08712300220 quoting claim code 1131 standard rates apply & $1.07 \times 10^{17}$ \\
+\hline
+\end{tabularx}
+}
+\caption{High Confidence Scam Predictions}
+\label{tab:scam_predictions}
+\end{table}
+
+% =======================
+% High Confidence Non-Malicious
+% =======================
+\begin{table}[h!]
+\centering
+\makebox[\linewidth]{
+\begin{tabularx}{1.1\textwidth}{|X|c|}
+\hline
+\multicolumn{2}{|c|}{\textbf{High Confidence Non-Malicious Predictions}} \\
+\hline
+\textbf{Text} & \textbf{Confidence Ratio} \\
+\hline
+NEFT Transaction with reference number \textless\#\textgreater\ for Rs. \textless DECIMAL\textgreater\ has been credited to the beneficiary account on \textless\#\textgreater\ at \textless TIME\textgreater : \textless\#\textgreater & $1.18 \times 10^{-17}$ \\
+\rowcolor{gray!10}
+no, i \textit{didn't} mean to post it. I wrote it, and like so many other times i've written stuff to you, i let it sit there. It WAS what I was feeling at the time. I was angry... & $2.34 \times 10^{-16}$ \\
+U wake up already? Wat u doing? U picking us up later rite? I'm taking sq825, reaching ard 7 smth 8 like dat. U can check e arrival time. C ya soon... & $7.95 \times 10^{-14}$ \\
+\hline
+\end{tabularx}
+}
+\caption{High Confidence Non-Malicious Predictions}
+\label{tab:nonmal_predictions}
+\end{table}
+
+% =======================
+% Boundary Cases
+% =======================
+\begin{table}[h!]
+\centering
+\makebox[\linewidth]{
+\begin{tabularx}{1.1\textwidth}{|X|c|}
+\hline
+\multicolumn{2}{|c|}{\textbf{Boundary Cases (Confidence Ratio $\approx$ 1)}} \\
+\hline
+\textbf{Text} & \textbf{Confidence Ratio} \\
+\hline
+I've told him that I've returned it. That should I re-order it. & 1.00 \\
+\rowcolor{gray!10}
+Glad to see your reply. & 1.08 \\
+ALRITE SAM ITS NIC JUST CHECKIN THAT THIS IS UR NUMBER-SO IS IT?T.B* & 0.90 \\
+\hline
+\end{tabularx}
+}
+\caption{Boundary Cases (Confidence Ratio $\approx$ 1)}
+\label{tab:boundary_predictions}
+\end{table}
+    
+\newpage
 
 \section{Results}
 Present the results of your analysis or experiments. Use tables, figures, and graphs to support your findings.
