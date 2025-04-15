@@ -12,6 +12,7 @@
 \usepackage{enumitem} 
 \usepackage{booktabs}
 \usepackage{xcolor}
+\usepackage{subcaption}
 \usepackage{svg}
 \usepackage{array}
 \usepackage{tabularx}
@@ -198,8 +199,11 @@ Then, the original supervised data set was split into a training set ($80\%$) an
     \item \textbf{High-confidence selection}: selects instances where the model is very certain (very high or very low $R$).
 \end{itemize}
 
-The lowest-confidence strategy was chosen to explore the intuition behind active learning—when model is uncertain, it adjust to gain clarification. These ambiguous instances 
+The lowest-confidence strategy was chosen to explore the core intuition behind active learning—when model is uncertain, it adjust to gain clarification. These ambiguous instances likely lie in regions feature space that are underrepresented or misrepresented in the original training data, where previously misclassified messages are most likely to occur. Therefore, by including these samples, the model can refine its understanding of these boderline cases, increase its confidence in prediction; and, ideally, assign them to the correct class. Labelling such samples can help the model adjust its boundaries more effectively and reduce generalisation error.
 
+Conversely, the highest-confidence strategy was included to test a hypothesis: reinforcing highly confident prediction might shapen the model's learned representation. Whilst by amplifying the dominant pattern, it might result in \textbf{overfitting}, it was included to explore whether such reinforcement could still yield performance gains—and to provide a meaningful contrast to the low-confidence strategy. \\
+
+The $200$ instances was appended to the split training data set, and the evaluation result are presented in Table \ref{tab:evaluation-metrics}. The confusion matrices for each sampling strategy is shown in Figure \ref{fig:confusion_matrices}.
 
 \begin{table}[h!]
 \centering
@@ -215,22 +219,115 @@ High-Confidence 200& 0.9550 & 0.8605 & 0.9250 & 0.8916 & 0.0450 \\
 \caption{Evaluation metrics for different semi-supervised augmentation strategies.}
 \label{tab:evaluation-metrics}
 \end{table}
+
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includesvg[width=\textwidth]{images/random.svg}
+        \caption{Random Selection Strategy}
+        \label{fig:random}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includesvg[width=\textwidth]{images/low-conf.svg}
+        \caption{Low Confidence Strategy}
+        \label{fig:low_conf}
+    \end{subfigure}
+
+    \vspace{1em}
+
+    \begin{subfigure}[b]{0.5\textwidth}
+        \centering
+        \includesvg[width=\textwidth]{images/high-conf.svg}
+        \caption{High Confidence Strategy}
+        \label{fig:high_conf}
+    \end{subfigure}
+
+    \caption{Confusion Matrices for Each Sampling Strategy}
+    \label{fig:confusion_matrices}
+\end{figure}
+
+The result aligned with our expectations: the low-confidence strategy outperformed both random and high-confidence selection, achieving an accuracy of $0.9750$ and a F1 score of $0.9398$. This suggests that the model effectively learned from the ambiguous instances, generalised better to unseen data, improving its performance. The confusion matrix in Figure \ref{fig:low_conf} further supports this, showing the lowest number of classifications ($5$ in total), alluding that the model substentially benefited from incorporating uncertain instances. Notably, false negatives dropped to just $1$.
+
+The high-confidence strategy, however, performed worse than random selection. Unfortunetly, this indicates that reinforcing highly confident predictions may not be beneficial and could lead to overfitting. It did not generalise well to the validation set, as the model may have fitted too closely to the training data, acccumulating noise, resulting in poor performance. \\
+
+Based on these findings, the low-confidence strategy not only offers the best quantitative performance, but also aligns with the theoretical motivations behind active learning. I therefore proceeded with this strategy to build the final model.
+
+\section{Supervised model evaluation}
+later
+
+\begin{figure}[H]
+    \centering
+    \resizebox{\textwidth}{!}{
+    \makebox[\textwidth][c]{  % now it's guaranteed to fit & center
+    
+      \begin{minipage}[t]{0.5\textwidth}
+        \vspace{8.35em}
+        \centering
+        \renewcommand{\arraystretch}{1.2}
+        \begin{tabular}{|l|c|c|}
+        \hline
+        \textbf{Metric} & \textbf{Base} & \textbf{Low-Conf. 200} \\
+        \hline
+        Accuracy   & 0.9700 & 0.9750 \\
+        Precision  & 0.9381 & 0.9534 \\
+        Recall     & 0.9100 & 0.9200 \\
+        F1 Score   & 0.9239 & 0.9364 \\
+        Error Rate & 0.0300 & 0.0250 \\
+        \hline
+        \end{tabular}
+        \captionof{table}{Base vs. Low-Confidence 200.}
+        \label{tab:metric_comparison_low_conf}
+      \end{minipage}
+      
+      \hspace{2em}
+
+      \begin{minipage}[t]{0.5\textwidth}
+        \vspace{0em}
+        \centering
+        \includesvg[width=\linewidth]{images/low-conf-actual-test.svg}
+        \captionof{figure}{Confusion Matrix for Low-Conf. 200 on Test Set.}
+        \label{fig:low_conf_matrix}
+      \end{minipage}
+    }
+    }
+\end{figure}
+    
     
 
-\section{Discussion}
-Interpret the results and discuss their implications. Highlight any limitations or challenges encountered.
-
-\section{Conclusion}
-Summarize the key findings and contributions of the report. Suggest future work or improvements.
-
-\section*{References}
-\begin{enumerate}
-    \item Author Name, \textit{Title of the Paper/Book}, Publisher, Year.
-    \item Author Name, "Title of the Article," \textit{Journal Name}, vol. X, no. Y, pp. Z, Year.
-\end{enumerate}
 
 
-Since the dataset is already preprocessed, I'm directly supplying vocabulary=vocabulary to CountVectorizer without calling fit(), to avoid any unintended token filtering (e.g., removing tokens like 'hi') that may occur with the default tokenizer during fitting.
+    
+    
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c||l|c|}
+\hline
+\multicolumn{2}{|c||}{\textbf{Scam Class}} & \multicolumn{2}{c|}{\textbf{Non-malicious}} \\
+\hline
+\textbf{Word} & \textbf{$P(w \mid \text{scam}) / P(w \mid \text{ham})$} & \textbf{Word} & \textbf{$P(w \mid \text{ham}) / P(w \mid \text{scam})$} \\
+\hline
+prize     & 77.15 & gt         & 56.00 \\
+tone      & 54.86 & lt         & 56.00 \\
+claim     & 54.00 & ok         & 51.91 \\
+select    & 34.29 & lor        & 29.75 \\
+paytm     & 32.57 & da         & 19.83 \\
+cs        & 30.86 & let        & 17.50 \\
+18        & 25.72 & wat        & 17.50 \\
+code      & 25.72 & lol        & 16.33 \\
+won       & 24.00 & something  & 16.33 \\
+award     & 22.29 & sorry      & 16.04 \\
+\hline
+\end{tabular}
+\caption{Top 10 most predictive words for each class based on word likelihood ratios (Low-Confidence 200 strategy).}
+\label{tab:predictive_words_low_conf}
+\end{table}
+    
+    
+    
 
 \end{document}
 
