@@ -93,6 +93,7 @@ Overall, the result is reasonable and it seems feasible to distinguish between s
 \end{table}
 
 \section{Supervised model evaluation}
+\label{sec:supervised-model-training}
 
 The classifier achieved an \textbf{accuracy of $0.9700$}, with \textbf{precision = $0.9381$}, \textbf{recall = $0.9100$} and an \textbf{F1 score of $0.9239$} (scam as positive class). The model's performance is quite good, indicating that it is effective in distinguishing between scam and non-malicious messages.
 
@@ -113,7 +114,7 @@ Likewise, for high confidence non-malicious predictions, the messages are often 
 
 For boundary cases, it often contain neutral vocabulary that does not strongly indicate either class, or mix of words from both classes. \\
 
-Overall, the model's predictions are reasonable and align with the expected patterns of scam and non-malicious messages. 
+Overall, the \textbf{model's predictions are reasonable} and align with the expected patterns of scam and non-malicious messages. 
 
 \begin{table}[h!]
 \centering
@@ -177,29 +178,44 @@ ALRITE SAM ITS NIC JUST CHECKIN THAT THIS IS UR NUMBER-SO IS IT?T.B* & 0.90 \\
 \hline
 \end{tabularx}
 }
-\caption{Boundary Cases (Confidence Ratio $\approx$ 1)}
+\caption{Boundary Cases (Confidence Ratio $\approx 1$)}
 \label{tab:boundary_predictions}
 \end{table}
     
 \newpage
 
-\section{Results}
-Present the results of your analysis or experiments. Use tables, figures, and graphs to support your findings.
+\section{Extending the model: Active Learning}
 
-\begin{table}[H]
-    \centering
-    \begin{tabular}{lcc}
-        \toprule
-        Metric & Value 1 & Value 2 \\
-        \midrule
-        Accuracy & 0.95 & 0.90 \\
-        Precision & 0.92 & 0.88 \\
-        Recall & 0.93 & 0.89 \\
-        \bottomrule
-    \end{tabular}
-    \caption{Example table caption.}
-    \label{tab:example}
+For this section, I have chose to implement \textbf{Option 2: Active Learning}, where $200$ instances of the ``unlabelled'' data was carefully incorporated to improve the model. \\
+
+The process began by passing through \texttt{sms\_unlabelled.csv} to the model trained on the original \texttt{sms\_supervised\_train.csv}. For each message, the model produced a predicted class label along with a confidence score, where the computation is outlined in Section \ref{sec:supervised-model-training} and more detailed in the Jupyter Notebook.
+
+Then, the original supervised data set was split into a training set ($80\%$) and a validation set ($20\%$). I then explored \textbf{three selection strategies} for choosing $200$ unlabelled instances:
+
+\begin{itemize}
+    \item \textbf{Random selection}: serves as a naive baseline, assuming all instances are equally informative.
+    \item \textbf{Low-confidence selection}: selects instances near the decision boundary ($R \approx 1$).
+    \item \textbf{High-confidence selection}: selects instances where the model is very certain (very high or very low $R$).
+\end{itemize}
+
+The lowest-confidence strategy was chosen to explore the intuition behind active learning—when model is uncertain, it adjust to gain clarification. These ambiguous instances 
+
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{lccccc}
+\hline
+\textbf{Model} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1 Score} & \textbf{Error Rate} \\
+\hline
+Random 200         & 0.9650 & 0.8837 & 0.9500 & 0.9157 & 0.0350 \\
+Low-Confidence 200 & 0.9750 & 0.9070 & 0.9750 & 0.9398 & 0.0250 \\
+High-Confidence 200& 0.9550 & 0.8605 & 0.9250 & 0.8916 & 0.0450 \\
+\hline
+\end{tabular}
+\caption{Evaluation metrics for different semi-supervised augmentation strategies.}
+\label{tab:evaluation-metrics}
 \end{table}
+    
 
 \section{Discussion}
 Interpret the results and discuss their implications. Highlight any limitations or challenges encountered.
