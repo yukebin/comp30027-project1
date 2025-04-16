@@ -256,8 +256,14 @@ The high-confidence strategy, however, performed worse than random selection. Un
 
 Based on these findings, the low-confidence strategy not only offers the best quantitative performance, but also aligns with the theoretical motivations behind active learning. I therefore proceeded with this strategy to build the final model.
 
-\section{Supervised model evaluation}
-later
+\section{Semi-supervised model evaluation}
+
+The performance of the semi-supervised model based on the \textbf{low-confidence strategy} shows a clear improvement over the base (fully supervised) model when evaluated on the test set. Both models were trained on the same total number of instances; the semi-supervised model replaced the 200-instance validation set with 200 low-confidence labelled examples.
+
+As shown in Table \ref{tab:metric_comparison_low_conf}, all evaluation metrics improved, with precision showing the most significant gain—from \textbf{0.9381} to \textbf{0.9534}—indicating that the model is now better at correctly identifying scam messages and reducing false positives. This is particularly meaningful in the context of scam detection, where mistakenly flagging legitimate messages can lead to unnecessary alarm or inconvenience for users (\textit{no one checks their spam folder unless they are sure there is something there!}). The \textbf{error rate} also dropped from \textbf{0.0300} to \textbf{0.0250}, which corresponds to an error rate reduction of \textbf{17\%} ($(0.03 - 0.025)/0.03 = 0.17$). Whilst these improvement may seem marginal, they are actually quite significant, considering the base (supervised) model was already performing at a high level. Such gains highlight the value of carefully selected semi-supervised data. 
+
+The confusion matrix in Figure \ref{fig:low_conf_matrix} further highlights the improvement, showing a  reduction in both false negatives and false positives compared to the base model in Figure \ref{fig:base}.
+
 
 \begin{figure}[H]
     \centering
@@ -296,10 +302,9 @@ later
     }
 \end{figure}
     
-    
+The model's representation has changed after the semi-supervised training, specifically, changes in which words the model considers most predictive of each class. This is illustrated in Table \ref{tab:predictive_words_low_conf}. Although most of the top 10 predictive words for both classes remain unchanged from Figure \ref{tab:predictive_words}, their overall ``predictiveness'' has decreased. For example the top predictive word for scam class, \texttt{prize}, has dropped from $88.80$ to $77.15$. Similarly, for the non-malicious class, \texttt{gt}, has dropped from $60.30$ to $56.00$. The remaining top words follow a similar trend, with most experiencing a decline in their predictive power. 
 
-
-
+This aligns with our intuition, and it is a very natural and meaningful outcome. By incorporating ambiguous instances into training, the model has rebalanced to better reflect the true distribution of the data. It is now less reliant on a few highly predictive words, which may have been overfitting to the training data. Instead, the model has learnt to be more cautious, and to consider a wider range of words when making predictions. In other words, terms that has been highly predictive of the class have now been adjusted to be more balanced, while terms from the previously unrepresented “gray area”, and therefore unpredictive, have became more influential. This is a positive outcome, as it indicates that the model is now more robust and avoid being overconfident based on a handful of domiant terms.
     
     
 \begin{table}[H]
@@ -326,7 +331,9 @@ award     & 22.29 & sorry      & 16.04 \\
 \label{tab:predictive_words_low_conf}
 \end{table}
     
-    
+We can possibly further improve the model by incorporating more low-confidence instances, as these examples are likely to be more informative and in this case only accounted for $20\%$ of the total training data. We can perhaps iteratively add low-confidence instances to the training set, retrain the model, add more low-confidence instances, and repeat the process until we reach a desired performance level. This approach supports our goal of active learning, where the model continuously learns from its own predictions and refines its understanding of the data.
+
+
     
 
 \end{document}
