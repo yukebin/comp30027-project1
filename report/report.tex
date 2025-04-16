@@ -34,15 +34,15 @@
 % Sections
 \section{Supervised model training}
 
-The prior probability of \textbf{non-malicious class was $0.7995$} (rounded to $4$ d.p.), while the \textbf{scam class was $0.2005$}. This indicates that the dataset is imbalanced, with a higher proportion of non-malicious instances. The distribution aligns well with real-world data, where non-malicious messages significantly outnumber spam. \\
+The prior probability of \textbf{non-malicious class was 0.7995} (rounded to $4$ d.p.), while the \textbf{scam class was 0.2005}. This indicates that the dataset is imbalanced, with a higher proportion of non-malicious instances. The distribution aligns well with real-world data, where non-malicious messages significantly outnumber spam. \\
 
 Table \ref{tab:probable_words} shows the top 10 most ``probable'' words for each class, based on the conditional probability $P(w \mid c)$. In contract, Table \ref{tab:predictive_words} shows the top 10 most ``predictive'' words for each class, calculated by the ratio, $P(w \mid c) / P(w \mid \neg c)$. Notably, the words in each table differ; although both measure the association of words with a particular class, they serve a slightly different purpose. 
 
-For example, most probable words include words such as `call' ($p = 0.0274$), `customer' ($p = 0.0092$) and `reply' ($p = 0.0080$). These words appear frequently in scam messages, which makes them probable; however, intuitively, we expect legitimate messages to frequently contain such words, especially those from customer service. In contrast, the most predictive words include terms such as `prize' ($p = 88.80$) and `claim' ($p = 41.21$). These words can appear in legitimate context, however, they are far more likely to be used in scam messages. (How often do you randomly win a prize?) 
+For example, most probable words include words such as \texttt{call} ($p = 0.0274$), \texttt{customer} ($p = 0.0092$) and \texttt{reply} ($p = 0.0080$). These words appear frequently in scam messages, which makes them probable; however, intuitively, we expect legitimate messages to frequently contain such words, especially those from customer service. In contrast, the most predictive words include terms such as \texttt{prize} ($p = 88.80$) and \texttt{claim} ($p = 41.21$). These words can appear in legitimate context, however, they are far more likely to be used in scam messages (\textit{how often do you randomly win a prize?}).
 
-For non-malicious messages, the most predictive words include slang such as `lor' ($p = 32.16$), `wat' ($p = 19.53$) and `lol' ($p = 17.80$). These casual words are more likely to be used in non-malicious messages, and are not commonly found in scam messages. This serves as a good example of how the model can learn to distinguish between the two classes based on word usage.
+For non-malicious messages, the most predictive words include slang such as \texttt{lor} ($p = 32.16$), \texttt{wat} ($p = 19.53$) and \texttt{lol} ($p = 17.80$). These casual words are more likely to be used in non-malicious messages, and are not commonly found in scam messages. This serves as a good example of how the model can learn to distinguish between the two classes based on word usage.
 
-Overall, the result is reasonable and it seems feasible to distinguish between scam and non-malicious messages using a multinomial naïve Bayes model. The differences in both frequent and predictive vocabulary across classes suggest the model can effectively learn class-specific language patterns, despite the simplicity of its assumptions.
+Overall, \textbf{the result is reasonable} and it seems feasible to distinguish between scam and non-malicious messages using a multinomial naïve Bayes model. The differences in both frequent and predictive vocabulary across classes suggest the model can effectively learn class-specific language patterns, despite the simplicity of its assumptions.
 
 
 \begin{table}[h!]
@@ -62,7 +62,7 @@ Overall, the result is reasonable and it seems feasible to distinguish between s
     text      & 0.0082 & come   & 0.0075 \\
     stop      & 0.0082 & ur     & 0.0075 \\
     reply     & 0.0080 & know   & 0.0075 \\
-    mobile    & 0.0078 & good   & 0.0071 \\
+    mobile    & 0.0078 & love   & 0.0071 \\
     \hline
     \end{tabular}
     \caption{Top 10 most probable words for each class}
@@ -96,7 +96,7 @@ Overall, the result is reasonable and it seems feasible to distinguish between s
 \section{Supervised model evaluation}
 \label{sec:supervised-model-training}
 
-The classifier achieved an \textbf{accuracy of $0.9700$}, with \textbf{precision = $0.9381$}, \textbf{recall = $0.9100$} and an \textbf{F1 score of $0.9239$} (scam as positive class). The model's performance is quite good, indicating that it is effective in distinguishing between scam and non-malicious messages.
+The classifier achieved an \textbf{accuracy of 0.9700}, with \textbf{precision = 0.9381}, \textbf{recall = 0.9100} and an \textbf{F1 score of 0.9239} (scam as positive class). The model's performance is quite good, indicating that it is effective in distinguishing between scam and non-malicious messages.
 
 The confusion matrix in Figure \ref{fig:base} highlights a high count of true positives and true negatives, supporting the model's effectiveness.
 
@@ -107,11 +107,11 @@ The confusion matrix in Figure \ref{fig:base} highlights a high count of true po
     \label{fig:base}
 \end{figure}
 
-Our model encountered \textbf{$179$ out-of-vocabulary words}, accounting for only $1.6320\%$ of the total. These are likely rare or gibberish words, suggesting the vocabulary covers the dataset well. \\
+Our model encountered \textbf{179 out-of-vocabulary words}, accounting for only $1.6320\%$ of the total. These are likely rare or gibberish words, suggesting the vocabulary covers the dataset well. \\
 
-Table \ref{tab:scam_predictions} displays examples of high-confidence scam predictions with a measure of confidence, which is computed as the ratio of the posterior probabilities for each class. It often reference fake rewards from telecom companies and include words like `call', `award' and `claim'—strong indicators per Table \ref{tab:predictive_words}. Due to the naive Bayes' multiplicative nature, confidence ratios can be very large, reaching up to $10^{17}$.
+Table \ref{tab:scam_predictions} displays examples of high-confidence scam predictions with a measure of confidence, which is computed as the ratio of the posterior probabilities for each class. It often reference fake rewards from telecom companies and include words like \texttt{call}, \texttt{award} and \texttt{claim}—strong indicators per Table \ref{tab:predictive_words}. Due to the naïve Bayes' multiplicative nature, confidence ratios can be very large, reaching up to $10^{17}$.
 
-Likewise, for high confidence non-malicious predictions, the messages are often casual, with words like `ok', `good' and `wat'. It also includes systemetic transaction messages. While the use of formal language might intuitively align with the scam class, it is important to note that legitimate transactions are typically redacted. For example, the first text in High Confidence Non-Malicious Predictions has reference number, money and time redacted—unlike the scam messages. Additionally, such transations' raw text uses HTML entity encoding such as \texttt{\&lt;}(\textless) and \texttt{\&gt;}(\textgreater) to to enclose redacted content. As shown in Table \ref{tab:predictive_words}, these tokens are highly predictive of the non-malicious class.
+Likewise, for high confidence non-malicious predictions, the messages are often casual, with words like \texttt{ok}, \texttt{good} and \texttt{wat}. It also includes systemetic transaction messages. While the use of formal language might intuitively align with the scam class, it is important to note that legitimate transactions are typically redacted. For example, the first text in High Confidence Non-Malicious Predictions has reference number, money and time redacted—unlike the scam messages. Additionally, such transations' raw text uses HTML entity encoding such as \texttt{\&lt;}(\textless) and \texttt{\&gt;}(\textgreater) to to enclose redacted content. As shown in Table \ref{tab:predictive_words}, these tokens are highly predictive of the non-malicious class.
 
 For boundary cases, it often contain neutral vocabulary that does not strongly indicate either class, or mix of words from both classes. \\
 
@@ -189,9 +189,7 @@ ALRITE SAM ITS NIC JUST CHECKIN THAT THIS IS UR NUMBER-SO IS IT?T.B* & 0.90 \\
 
 For this section, I have chose to implement \textbf{Option 2: Active Learning}, where $200$ instances of the ``unlabelled'' data was carefully incorporated to improve the model. \\
 
-The process began by passing through \texttt{sms\_unlabelled.csv} to the model trained on the original \texttt{sms\_supervised\_train.csv}. For each message, the model produced a predicted class label along with a confidence score, where the computation is outlined in Section \ref{sec:supervised-model-training} and more detailed in the Jupyter Notebook.
-
-Then, the original supervised data set was split into a training set ($80\%$) and a validation set ($20\%$). I then explored \textbf{three selection strategies} for choosing $200$ unlabelled instances:
+The process began by passing through \texttt{sms\_unlabelled.csv} to the model trained on the original \texttt{sms\_supervised\_train.csv}. For each message, the model generated a predicted class label and a corresponding confidence score. The method used to compute these scores is outlined in Section \ref{sec:supervised-model-training} and explained in greater detail in the Jupyter Notebook. Next, the original supervised data set was split into a training set ($80\%$) and a validation set ($20\%$). I then explored \textbf{three selection strategies} for choosing $200$ unlabelled instances:
 
 \begin{itemize}
     \item \textbf{Random selection}: serves as a naive baseline, assuming all instances are equally informative.
@@ -199,7 +197,7 @@ Then, the original supervised data set was split into a training set ($80\%$) an
     \item \textbf{High-confidence selection}: selects instances where the model is very certain (very high or very low $R$).
 \end{itemize}
 
-The lowest-confidence strategy was chosen to explore the core intuition behind active learning—when model is uncertain, it adjust to gain clarification. These ambiguous instances likely lie in regions feature space that are underrepresented or misrepresented in the original training data, where previously misclassified messages are most likely to occur. Therefore, by including these samples, the model can refine its understanding of these boderline cases, increase its confidence in prediction; and, ideally, assign them to the correct class. Labelling such samples can help the model adjust its boundaries more effectively and reduce generalisation error.
+The lowest-confidence strategy was chosen to explore the core intuition behind active learning—when model is uncertain, it adjust to gain clarification. These ambiguous instances likely lie in regions of feature space that are underrepresented or misrepresented in the original training data, where previously misclassified messages are most likely to occur. Therefore, by including these samples, the model can refine its understanding of these boderline cases, increase its confidence in prediction; and, ideally, assign them to the correct class. Labelling such samples can help the model to adjust its boundaries more effectively and reduce generalisation error.
 
 Conversely, the highest-confidence strategy was included to test a hypothesis: reinforcing highly confident prediction might shapen the model's learned representation. Whilst by amplifying the dominant pattern, it might result in \textbf{overfitting}, it was included to explore whether such reinforcement could still yield performance gains—and to provide a meaningful contrast to the low-confidence strategy. \\
 
